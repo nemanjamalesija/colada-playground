@@ -1,17 +1,38 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
-</script>
+import { useQuery } from '@pinia/colada'
+import { watch } from 'vue';
 
+async function fetchJokes() {
+  const response = await fetch("https://icanhazdadjoke.com/search?limit=5", {
+    headers: {
+      Accept: "application/json",
+    },
+  });
+  const data = await response.json();
+
+  return data.results;
+}
+
+
+const {
+  state, asyncStatus, data
+} = useQuery({
+  key: ['products-list'],
+  query: fetchJokes,
+})
+
+
+watch(state, (newState , oldState) => {
+
+  console.log("oldState", oldState);
+  console.log("newstate", newState);
+
+})
+
+</script>
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+  <h1>Basic</h1>
+  <h1 v-if="asyncStatus === 'loading'"> Loading....</h1>
 </template>
 
 <style scoped>
@@ -21,9 +42,11 @@ import HelloWorld from './components/HelloWorld.vue'
   will-change: filter;
   transition: filter 300ms;
 }
+
 .logo:hover {
   filter: drop-shadow(0 0 2em #646cffaa);
 }
+
 .logo.vue:hover {
   filter: drop-shadow(0 0 2em #42b883aa);
 }
